@@ -1,0 +1,99 @@
+@import "styles/fonts";
+@import "styles/mixins";
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: black;
+  overflow: hidden;
+  color: white;
+  font-family: Cormorant Garamond, serif;
+  @include adaptiv-font(40, 20);
+  text-align: center;
+
+  #app {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  a{
+    color: white;
+    text-decoration: none;
+    transition: .2s ease-out;
+    &:hover {
+      color: #6C79F7;
+    }
+  }
+}
+
+.container3d {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+* {
+  box-sizing: inherit;
+}
+
+.content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+
+  nav {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    display: flex;
+    a {
+      margin-left: 1em;
+      font-size: .7em;
+    }
+  }
+
+  h1 {
+    @include adaptiv-letter-spacing(70, 15);
+    text-shadow: #87CEEB 0 0 25px;
+    text-transform: uppercase;
+    span {
+      transition: .2s ease-in-out;
+      &:hover {
+        text-shadow: #87CEEB 0 0 50px;
+      }
+    }
+  }
+
+  p {
+    @include adaptiv-letter-spacing(20, 5);
+  }
+
+  a.sign {
+    display: block;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-family: "Garamond", serif;
+    font-size: .4em;
+    letter-spacing: 1px;
+    opacity: .4;
+  }
+}
