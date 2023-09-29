@@ -65,3 +65,29 @@ $maxWidth: 1920;
   $maxWidth: $maxWidth - 320;
   height: calc(#{$mobSize + px} + #{$addSize} * ((100vw - 320px) / #{$maxWidth}));
 }
+
+@mixin youtube-icon($width, $hole-color, $background-color) {
+  $border-left-width: $width / 3.5;
+  $border-top-bottom-width: $border-left-width / 2;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  width: $width;
+  aspect-ratio: 1.75;
+  border-radius: 5px;
+  font-size: 0;
+  background-color: $background-color;
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-left: $border-left-width solid $hole-color;
+    border-right: 0;
+    border-top: $border-top-bottom-width solid transparent;
+    border-bottom: $border-top-bottom-width solid transparent;
+    transform: translate(-50%, -50%);
+  }
+}

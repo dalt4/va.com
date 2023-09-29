@@ -1,19 +1,21 @@
 import '../styles/style.scss'
+import {gsap} from "gsap";
 import {
     WebGLRenderer,
     Scene,
     PerspectiveCamera,
     LoadingManager,
-    CubeTextureLoader,
     Group,
-    MeshStandardMaterial,
     Mesh,
-    TextureLoader,
     Vector3,
     Clock,
     Vector2,
     PointLight,
     PlaneGeometry,
+    MeshPhysicalMaterial,
+    PMREMGenerator,
+    DoubleSide,
+    ACESFilmicToneMapping,
 } from 'three'
 
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader'
@@ -26,22 +28,45 @@ import {
     SMAAEffect,
 
 } from "postprocessing";
+import {RGBELoader} from "three/examples/jsm/loaders/RGBELoader";
 
 document.querySelector('#app').innerHTML = `
- <div class="content">
-    <nav>
-        <a href="https://t.me/powerwebb" target="blank">telegram</a>
-        <a href="https://wa.me/79160273719" target="blank">whatsapp</a>
-        <a href="https://www.upwork.com/freelancers/~011a6124386f98c473?viewMode=1" target="blank">upwork</a>
-    </nav>
-    <h1>
-        <span>V</span><span>a</span><span>s</span><span>i</span><span>l</span><span>i</span><span>y</span> <span>A</span><span>n</span><span>i</span><span>k</span><span>i</span><span>n</span>
-    </h1>
-    <p>3d visualization for websites</p>
-    <a href="https://dalt4444.com/" class="sign" target="blank">©dalt4444, 2021</a>
-</div>
-<div class="container3d"></div>
+
+  <a href="https://www.youtube.com/user/dalt4444" target="blank" class="youtube"><span>youtube channel</span></a>
+  <nav>
+      <a href="https://t.me/powerwebb" target="blank">telegram</a>
+<!--      <a href="mailto:">dalt4@yandex.ru</a>-->
+      <a href="https://three-js.ru/" target="_blank">showroom</a>
+<!--      <a href="https://www.upwork.com/freelancers/~011a6124386f98c473?viewMode=1" target="blank">upwork</a>-->
+  </nav>
+  <div class="main-title">
+      <h1>
+          <span>V</span><span>a</span><span>s</span><span>i</span><span>l</span><span>i</span><span>y</span> <span>A</span><span>n</span><span>i</span><span>k</span><span>i</span><span>n</span>
+      </h1>
+      <p>3d visualization for websites</p>
+  </div>
+  
+  <div class="container3d"></div>
 `
+{
+
+    let youtube = document.querySelector('.youtube')
+    let span = youtube.querySelector('span')
+    let t1 = gsap.timeline({paused: true})
+    t1.to(span, {
+        x: '110%',
+        letterSpacing: '.02em',
+        duration: .6
+    })
+    t1.to(span, {
+        opacity: 1,
+        duration: .4,
+        delay: .2
+    }, '<')
+    youtube.onmouseenter = () => t1.play()
+    youtube.onmouseleave = () => t1.reverse()
+
+}
 
 let renderer,
     scene,
@@ -61,20 +86,18 @@ function load() {
     const loadingManager = new LoadingManager();
 
     const gltfLoader = new GLTFLoader(loadingManager);
-    const ring = '../models/scene.glb';
+
+    gltfLoader.load('../models/scene.glb', gltf => {
+        assets.set('ring', gltf.scene)
+    })
 
 
-    const cubeLoader = new CubeTextureLoader(loadingManager);
-    const textureLoader = new TextureLoader(loadingManager);
-    const starPath = '../img/star.png'
-    const sidePaths = [
-        '../img/px.png',
-        '../img/nx.png',
-        '../img/py.png',
-        '../img/ny.png',
-        '../img/pz.png',
-        '../img/nz.png',
-    ];
+    const rgbeLoader = new RGBELoader(loadingManager)
+    rgbeLoader
+      .setPath(`/img/`)
+      .load('brown_photostudio_06_1k.hdr', t => {
+          assets.set('environment', t)
+      })
 
     return new Promise((resolve, reject) => {
 
@@ -89,19 +112,6 @@ function load() {
 
         };
 
-        gltfLoader.load(ring, function(gltf) {
-
-            assets.set("gltf-scene", gltf.scene);
-
-        });
-
-        let star = textureLoader.load(starPath)
-        let skyBox = cubeLoader.load(sidePaths);
-
-        loadingManager.onLoad = () => {
-            assets.set("skyBox", skyBox);
-            assets.set("star", star);
-        }
 
         const searchImage = new Image(), areaImage = new Image();
 
@@ -157,10 +167,12 @@ function initialize(assets) {
     renderer.physicallyCorrectLights = true;
     window.innerWidth <= 1920 ? renderer.setPixelRatio(Math.min(2, window.devicePixelRatio)) : ''
     container3d.appendChild(renderer.domElement);
+    renderer.toneMapping = ACESFilmicToneMapping
+    renderer.exposure = .5
 
 
     scene = new Scene();
-    scene.environment = assets.get('skyBox')
+    scene.environment = new PMREMGenerator(renderer).fromCubemap(assets.get('environment')).texture
 
     camera = new PerspectiveCamera(
         30,
@@ -173,7 +185,21 @@ function initialize(assets) {
 
     //---------------------------------------------------------------------------------meshes-------------------------//
 
-    mirrorGroup = assets.get('gltf-scene')
+    mirrorGroup = assets.get('ring')
+    mirrorGroup.traverse(node => {
+        if(node.material) {
+            node.material = new MeshPhysicalMaterial({
+                color: 'white',
+                metalness: .8,
+                roughness: .1,
+                envMapIntensity: .7,
+                side: DoubleSide,
+                clearcoat: true,
+                clearcoatRoughness: 0
+            })
+            node.material.needsUpdate = true
+        }
+    })
     mainMirrorGroup = new Group()
 
     mainMirrorGroup.add(mirrorGroup)
@@ -201,7 +227,7 @@ function initialize(assets) {
     scene.add(pointRed)
 
     let pg = new PlaneGeometry(100,100,1,1)
-    let pm = new MeshStandardMaterial({
+    let pm = new MeshPhysicalMaterial({
         color: 0xffffff,
         envMapIntensity: 0
     })
@@ -214,14 +240,13 @@ function initialize(assets) {
     //---------------------------------------------------------------------------------interactions-------------------//
 
 
-let contentDiv = document.querySelector('.content')
-    contentDiv.onmousemove = (function (e) {
+    document.body.onmousemove = (function (e) {
 
         e.preventDefault();
         mouse.x = (e.clientX / document.documentElement.clientWidth) * 2 - 1;
-        mouse.y = -((e.clientY - pageYOffset) / document.documentElement.clientHeight) * 2 + 1;
+        mouse.y = -((e.clientY - scrollY) / document.documentElement.clientHeight) * 2 + 1;
 
-        let vector = new Vector3(mouse.x, mouse.y, 5);
+        let vector = new Vector3(mouse.x, mouse.y, .5);
         vector.unproject( camera );
         let dir = vector.sub( camera.position ).normalize();
         let distance = - camera.position.z / dir.z;
@@ -239,24 +264,20 @@ let contentDiv = document.querySelector('.content')
         assets.get("smaa-area")
     );
 
-
-
-
-    const bloom = new BloomEffect({
-        intensity: 1.2,
-        luminanceThreshold: .0,
-        kernelSize: 5,
-        // luminanceSmoothing: .3
-    })
-
-
+    const Bloom = new BloomEffect({
+        luminanceThreshold: .90,
+        intensity: 1,
+        mipmapBlur: true,
+        radius: .5,
+        resolutionScale: 1
+    });
 
 
     const renderPass = new RenderPass(scene, camera);
     const smaaPass = new EffectPass(camera, smaaEffect);
     const effectPass = new EffectPass(
         camera,
-        // bloom,
+        Bloom
     );
 
     effectPass.renderToScreen = true;
@@ -309,12 +330,12 @@ let contentDiv = document.querySelector('.content')
      * @param {DOMHighResTimeStamp} now - An execution timestamp.
      */
 
-    (function render(now) {
+    (function render() {
 
-        mainMirrorGroup.rotation.x += .02
-
-        mirrorGroup2.rotation.x += .02
-        mirrorGroup3.rotation.y += .02
+        mainMirrorGroup.rotation.x += .015
+        mirrorGroup.rotation.z += .015
+        mirrorGroup2.rotation.x += .015
+        mirrorGroup3.rotation.y += .015
 
         requestAnimationFrame(render);
         composer.render(clock.getDelta());
