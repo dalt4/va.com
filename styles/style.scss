@@ -99,12 +99,19 @@ nav {
   left: 50vw;
   width: 100%;
   transform: translate(-50%, -50%);
-  h1 {
-    @include adaptiv-letter-spacing(70, 15);
-    text-shadow: black 0 0 15px;
-    text-transform: uppercase;
+
+    div {
+      white-space: nowrap;
+      display: inline-block;
+      @include adaptiv-letter-spacing(70, 15);
+      @include adaptiv-font(80, 30);
+      font-weight: bold;
+      text-shadow: black 0 0 15px;
+      text-transform: uppercase;
+    }
 
     span {
+
       display: inline-block;
       transition: .6s ease-in-out;
       text-align: center;
@@ -114,7 +121,7 @@ nav {
         color: slategrey;
       }
     }
-  }
+
 
   p {
     @include adaptiv-letter-spacing(20, 5);

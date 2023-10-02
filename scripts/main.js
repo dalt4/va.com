@@ -35,14 +35,17 @@ document.querySelector('#app').innerHTML = `
   <a href="https://www.youtube.com/user/dalt4444" target="blank" class="youtube"><span>youtube channel</span></a>
   <nav>
       <a href="https://t.me/powerwebb" target="blank">telegram</a>
-<!--      <a href="mailto:">dalt4@yandex.ru</a>-->
+      <a href="mailto:dalt4@yandex.ru">e-mail</a>
       <a href="https://three-js.ru/" target="_blank">showroom</a>
 <!--      <a href="https://www.upwork.com/freelancers/~011a6124386f98c473?viewMode=1" target="blank">upwork</a>-->
   </nav>
   <div class="main-title">
-      <h1>
-          <span>V</span><span>a</span><span>s</span><span>i</span><span>l</span><span>i</span><span>y</span> <span>A</span><span>n</span><span>i</span><span>k</span><span>i</span><span>n</span>
-      </h1>
+      <div>
+      <span>V</span><span>a</span><span>s</span><span>i</span><span>l</span><span>i</span><span>y</span>
+   </div>
+      <div>
+      <span>A</span><span>n</span><span>i</span><span>k</span><span>i</span><span>n</span>
+    </div>
       <p>3d visualization for websites</p>
   </div>
   
@@ -69,8 +72,8 @@ document.querySelector('#app').innerHTML = `
 }
 
 let renderer,
-    scene,
-    camera;
+  scene,
+  camera;
 
 // const T = THREE;
 
@@ -94,7 +97,7 @@ function load() {
 
     const rgbeLoader = new RGBELoader(loadingManager)
     rgbeLoader
-      .setPath(`/img/`)
+      .setPath(`../img/`)
       .load('brown_photostudio_06_1k.hdr', t => {
           assets.set('environment', t)
       })
@@ -142,10 +145,10 @@ function load() {
 function initialize(assets) {
 
     let mainMirrorGroup,
-        mirrorGroup,
-        mirrorGroup2,
-        mirrorGroup3,
-        pointRed;
+      mirrorGroup,
+      mirrorGroup2,
+      mirrorGroup3,
+      pointRed;
 
     let mouse = Vector2
 
@@ -175,10 +178,10 @@ function initialize(assets) {
     scene.environment = new PMREMGenerator(renderer).fromCubemap(assets.get('environment')).texture
 
     camera = new PerspectiveCamera(
-        30,
-        aspect,
-        .1,
-        500
+      30,
+      aspect,
+      .1,
+      500
     )
     camera.lookAt(scene.position);
     camera.position.z = 50
@@ -260,8 +263,8 @@ function initialize(assets) {
     const composer = new EffectComposer(renderer);
 
     const smaaEffect = new SMAAEffect(
-        assets.get("smaa-search"),
-        assets.get("smaa-area")
+      assets.get("smaa-search"),
+      assets.get("smaa-area")
     );
 
     const Bloom = new BloomEffect({
@@ -276,8 +279,8 @@ function initialize(assets) {
     const renderPass = new RenderPass(scene, camera);
     const smaaPass = new EffectPass(camera, smaaEffect);
     const effectPass = new EffectPass(
-        camera,
-        Bloom
+      camera,
+      Bloom
     );
 
     effectPass.renderToScreen = true;
