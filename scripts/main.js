@@ -39,6 +39,7 @@ document.querySelector('#app').innerHTML = `
       <a href="https://three-js.ru/" target="_blank">showroom</a>
 <!--      <a href="https://www.upwork.com/freelancers/~011a6124386f98c473?viewMode=1" target="blank">upwork</a>-->
   </nav>
+
   <div class="main-title">
       <div>
       <span>V</span><span>a</span><span>s</span><span>i</span><span>l</span><span>i</span><span>y</span>
